@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
-	handlers "github.com/eximarus/exi-contact-api/pkg"
+	"github.com/eximarus/exi-contact-api/pkg/handlers"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -19,8 +20,8 @@ func setupLocalEnv() {
 	if os.Getenv("RUN_IN_DOCKER") == "true" {
 		return
 	}
-
-	os.Setenv("TARGET_EMAIL", "")
-	os.Setenv("GMAIL_USER", "")
-	os.Setenv("GMAIL_PASSWORD", "")
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 }

@@ -3,6 +3,8 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as path from "path";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export class CdkStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -15,9 +17,31 @@ export class CdkStack extends cdk.Stack {
             ),
             handler: "main",
             environment: {
-                TARGET_EMAIL: "",
-                GMAIL_USER: "",
-                GMAIL_PASSWORD: "",
+                TARGET_EMAIL:
+                    process.env.TARGET_EMAIL ??
+                    (() => {
+                        throw new Error("TARGET_EMAIL is not defined");
+                    })(),
+                SMTP_USER:
+                    process.env.SMTP_USER ??
+                    (() => {
+                        throw new Error("SMTP_USER is not defined");
+                    })(),
+                SMTP_PASSWORD:
+                    process.env.SMTP_PASSWORD ??
+                    (() => {
+                        throw new Error("SMTP_PASSWORD is not defined");
+                    })(),
+                SMTP_HOST:
+                    process.env.SMTP_HOST ??
+                    (() => {
+                        throw new Error("SMTP_HOST is not defined");
+                    })(),
+                SMTP_PORT:
+                    process.env.SMTP_PORT ??
+                    (() => {
+                        throw new Error("SMTP_PORT is not defined");
+                    })(),
             },
         });
         new apigateway.LambdaRestApi(this, "ContactApiLambdaFnEndpoint", {

@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-lambda-go v1.36.1
 	github.com/awslabs/aws-lambda-go-api-proxy v0.13.3
 	github.com/gin-gonic/gin v1.8.2
+	github.com/joho/godotenv v1.4.0
 	gopkg.in/mail.v2 v2.3.1
 )
 
