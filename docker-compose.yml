@@ -6,6 +6,30 @@ services:
     env_file:
       - .env
     environment:
-      - RUN_IN_DOCKER=true
+      RUN_IN_DOCKER: true
+      DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
+      AWS_REGION: "eu-central-1"
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
     ports:
       - "8080:8080"
+
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    container_name: dynamodb-local
+    environment:
+      AWS_REGION: "eu-central-1"
+    ports:
+      - "8000:8000"
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
+      AWS_REGION: "eu-central-1"
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+    depends_on:
+      - dynamodb-local

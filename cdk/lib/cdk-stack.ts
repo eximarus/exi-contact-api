@@ -4,6 +4,8 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as path from "path";
 import * as dotenv from "dotenv";
+import { CfnOutput } from "aws-cdk-lib";
+import { FunctionUrlAuthType } from "aws-cdk-lib/aws-lambda";
 dotenv.config();
 
 export class CdkStack extends cdk.Stack {
@@ -43,6 +45,13 @@ export class CdkStack extends cdk.Stack {
                         throw new Error("SMTP_PORT is not defined");
                     })(),
             },
+        });
+
+        const fnUrl = lambdaFn.addFunctionUrl({
+            authType: FunctionUrlAuthType.NONE,
+        });
+        new CfnOutput(this, "ContactApiLambdaFnUrl", {
+            value: fnUrl.url,
         });
         new apigateway.LambdaRestApi(this, "ContactApiLambdaFnEndpoint", {
             handler: lambdaFn,

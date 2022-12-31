@@ -4,15 +4,18 @@ import (
 	"os"
 
 	"github.com/eximarus/exi-contact-api/pkg/handlers"
+	"github.com/eximarus/exi-contact-api/pkg/setup"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	setupLocalEnv()
+	setup.InitDynamo()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.POST("/submit", handlers.HandleSubmit)
+	r.POST("/guestbook", handlers.HandleSubmit)
 	r.Run(":8080")
 }
 
