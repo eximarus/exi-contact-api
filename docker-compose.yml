@@ -1,19 +1,13 @@
 version: "3.9"
 
-services:
-  web:
-    build: .
-    env_file:
-      - .env
-    environment:
-      RUN_IN_DOCKER: true
-      DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
-      AWS_REGION: "eu-central-1"
-      AWS_ACCESS_KEY_ID: local
-      AWS_SECRET_ACCESS_KEY: local
-    ports:
-      - "8080:8080"
+x-aws-config: &aws-config 
+  DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
+  AWS_REGION: "eu-central-1"
+  AWS_ACCESS_KEY_ID: "local"
+  AWS_SECRET_ACCESS_KEY: "local"
 
+
+services:
   dynamodb-local:
     image: amazon/dynamodb-local
     container_name: dynamodb-local
@@ -22,14 +16,25 @@ services:
     ports:
       - "8000:8000"
 
+  web:
+    build: .
+    env_file:
+      - .env
+    environment:
+      RUN_IN_DOCKER: "true"
+      <<: *aws-config
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dynamodb-local
+    profiles:
+      - local-lambda
+
   dynamodb-admin:
     image: aaronshaf/dynamodb-admin
     ports:
       - "8001:8001"
     environment:
-      DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
-      AWS_REGION: "eu-central-1"
-      AWS_ACCESS_KEY_ID: local
-      AWS_SECRET_ACCESS_KEY: local
+      <<: *aws-config
     depends_on:
       - dynamodb-local

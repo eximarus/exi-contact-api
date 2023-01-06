@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/eximarus/exi-contact-api/pkg/guestbook"
 	"github.com/gin-gonic/gin"
 	gomail "gopkg.in/mail.v2"
 )
@@ -18,11 +20,10 @@ type SubmitRequest struct {
 }
 
 func HandleSubmit(c *gin.Context) {
-	m := gomail.NewMessage()
-
 	var req SubmitRequest
 	c.BindJSON(&req)
 
+	m := gomail.NewMessage()
 	m.SetHeader("From", os.Getenv("SMTP_USER"))
 	m.SetHeader("To", os.Getenv("TARGET_EMAIL"))
 	m.SetHeader("Subject", req.Subject)
@@ -36,7 +37,6 @@ Message:
 	if err != nil {
 		panic(err)
 	}
-
 	d := gomail.NewDialer(
 		os.Getenv("SMTP_HOST"), int(port),
 		os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"),
@@ -46,5 +46,15 @@ Message:
 		panic(err)
 	}
 
+	c.Status(http.StatusOK)
+}
+
+func HandleGuestbook(c *gin.Context, db *dynamodb.Client) {
+	var req guestbook.CreateGuestbookEntryRequest
+	c.BindJSON(&req)
+	err := guestbook.CreateGuestbookEntry(db, &req)
+	if err != nil {
+		panic(err)
+	}
 	c.Status(http.StatusOK)
 }

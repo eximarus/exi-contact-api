@@ -2,13 +2,19 @@ package guestbook
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
+
+type CreateGuestbookEntryRequest struct {
+	Email   string  `json:"email"`
+	Message string  `json:"message"`
+	Name    string  `json:"name"`
+	Company *string `json:"company"`
+}
 
 type GuestbookEntry struct {
 	Email     string
@@ -18,20 +24,20 @@ type GuestbookEntry struct {
 	CreatedAt time.Time
 }
 
-const tableName string = "guestbook"
+const tableName string = "Guestbook"
 
-func CreateGuestbookEntry(db *dynamodb.Client) {
+func CreateGuestbookEntry(db *dynamodb.Client, req *CreateGuestbookEntryRequest) error {
 	item := &GuestbookEntry{
-		Email:     "eximarus@gmail.com",
-		Name:      "Alexander Gaugusch",
-		Company:   aws.String("Naughty Cult Ltd."),
-		Message:   "Hello dynamo",
+		Email:     req.Email,
+		Name:      req.Name,
+		Company:   req.Company,
+		Message:   req.Message,
 		CreatedAt: time.Now(),
 	}
 
 	av, err := attributevalue.MarshalMap(item)
 	if err != nil {
-		log.Fatalf("Got error marshalling map: %s", err)
+		return err
 	}
 	input := &dynamodb.PutItemInput{
 		Item:                av,
@@ -41,6 +47,7 @@ func CreateGuestbookEntry(db *dynamodb.Client) {
 
 	_, err = db.PutItem(context.TODO(), input)
 	if err != nil {
-		log.Fatalf("Got error calling PutItem: %s", err)
+		return err
 	}
+	return nil
 }
