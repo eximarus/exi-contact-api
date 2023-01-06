@@ -4,12 +4,17 @@ schema {
 }
 
 type Query {
-    guestbook: [GuestbookEntry!]!
+    getGuestbook(cursor: String, limit: Int): GetGuestbookOutput!
 }
 
 type Mutation {
-    createGuestbookEntry(input: CreateGuestbookEntryInput): GuestbookEntry!
-    submitContactInfo(input: ContactInfoInput): Boolean
+    createGuestbookEntry(input: CreateGuestbookEntryInput!): GuestbookEntry!
+    submitContactInfo(input: ContactInfoInput!): Boolean
+}
+
+type GetGuestbookOutput {
+    entries: [GuestbookEntry!]!
+    cursor: String
 }
 
 input ContactInfoInput {
@@ -20,7 +25,7 @@ input ContactInfoInput {
 }
 
 input CreateGuestbookEntryInput {
-    emai: String!
+    email: String!
     message: String!
     name: String!
     company: String

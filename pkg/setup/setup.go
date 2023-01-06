@@ -7,8 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/eximarus/exi-contact-api/pkg/graph"
+	"github.com/gin-gonic/gin"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -30,6 +33,18 @@ const (
 	DefaultRetryTimeoutCost uint = 10     // sdk default
 	DefaultNoRetryIncrement uint = 1      // sdk default
 )
+
+func InitGraphqlHandler(ctx context.Context, db *dynamodb.Client) gin.HandlerFunc {
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(
+		graph.Config{Resolvers: &graph.Resolver{
+			Db: db,
+		}},
+	))
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
 
 func InitDynamo(ctx context.Context) *dynamodb.Client {
 	retryer := config.WithRetryer(func() aws.Retryer {

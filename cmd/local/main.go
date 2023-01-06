@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 
-	"github.com/eximarus/exi-contact-api/pkg/handlers"
 	"github.com/eximarus/exi-contact-api/pkg/setup"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,13 +11,14 @@ import (
 
 func main() {
 	setupLocalEnv()
-	setup.InitDynamo(context.Background())
+	ctx := context.Background()
+	db := setup.InitDynamo(context.Background())
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
-	r.POST("/submit", handlers.HandleSubmit)
-	r.POST("/guestbook", handlers.HandleSubmit)
+	r.POST("/graphql", setup.InitGraphqlHandler(ctx, db))
 	r.Run(":8080")
+
 }
 
 func setupLocalEnv() {
