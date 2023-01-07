@@ -16,7 +16,8 @@ services:
     ports:
       - "8000:8000"
 
-  web:
+  lambda:
+    container_name: lambda-local
     build: .
     env_file:
       - .env
@@ -24,12 +25,8 @@ services:
       RUN_IN_DOCKER: "true"
       AES_ENCRYPTION_SECRET: "abc&1*~#^2^#s0^=)^^7%b34"
       <<: *aws-config
-    ports:
-      - "8080:8080"
     depends_on:
       - dynamodb-local
-    profiles:
-      - local-lambda
 
   dynamodb-admin:
     image: aaronshaf/dynamodb-admin
@@ -39,3 +36,14 @@ services:
       <<: *aws-config
     depends_on:
       - dynamodb-local
+
+  api:
+    image: elthrasher/http-lambda-invoker
+    environment:
+      - LAMBDA_ENDPOINT=http://lambda-local:8080
+      - LAMBDA_NAME=function
+      - PORT=8080
+    ports:
+      - '8080:8080'
+    depends_on:
+      - lambda
