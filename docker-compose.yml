@@ -6,7 +6,6 @@ x-aws-config: &aws-config
   AWS_ACCESS_KEY_ID: "local"
   AWS_SECRET_ACCESS_KEY: "local"
 
-
 services:
   dynamodb-local:
     image: amazon/dynamodb-local
@@ -15,6 +14,15 @@ services:
       AWS_REGION: "eu-central-1"
     ports:
       - "8000:8000"
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      <<: *aws-config
+    depends_on:
+      - dynamodb-local
 
   lambda:
     container_name: lambda-local
@@ -28,21 +36,12 @@ services:
     depends_on:
       - dynamodb-local
 
-  dynamodb-admin:
-    image: aaronshaf/dynamodb-admin
-    ports:
-      - "8001:8001"
-    environment:
-      <<: *aws-config
-    depends_on:
-      - dynamodb-local
-
   api:
     image: elthrasher/http-lambda-invoker
     environment:
-      - LAMBDA_ENDPOINT=http://lambda-local:8080
-      - LAMBDA_NAME=function
-      - PORT=8080
+      LAMBDA_ENDPOINT: "http://lambda-local:8080"
+      LAMBDA_NAME: "function"
+      PORT: "8080"
     ports:
       - '8080:8080'
     depends_on:
