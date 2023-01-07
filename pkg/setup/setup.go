@@ -16,7 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-func InitGraphqlHandler(ctx context.Context, db *dynamodb.Client) gin.HandlerFunc {
+func InitGraphqlHandler(db *dynamodb.Client) gin.HandlerFunc {
 	h := handler.NewDefaultServer(graph.NewExecutableSchema(
 		graph.Config{Resolvers: &graph.Resolver{
 			Db: db,

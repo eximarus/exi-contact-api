@@ -21,7 +21,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (even
 	if g == nil {
 		db := setup.InitDynamo(ctx)
 		r := gin.Default()
-		r.POST("/graphql", setup.InitGraphqlHandler(ctx, db))
+		r.POST("/graphql", setup.InitGraphqlHandler(db))
 
 		g = ginadapter.New(r)
 	}
