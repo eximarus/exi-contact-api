@@ -11,12 +11,11 @@ import (
 
 func main() {
 	setupLocalEnv()
-	ctx := context.Background()
 	db := setup.InitDynamo(context.Background())
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
-	r.POST("/graphql", setup.InitGraphqlHandler(ctx, db))
+	r.POST("/graphql", setup.InitGraphqlHandler(db))
 	r.Run(":8080")
 
 }
