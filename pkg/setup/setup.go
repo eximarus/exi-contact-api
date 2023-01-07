@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,23 +14,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-
-	"github.com/aws/aws-sdk-go-v2/aws/ratelimit"
-	"github.com/aws/aws-sdk-go-v2/aws/retry"
-)
-
-const (
-	// DefaultMaxAttempts is the maximum of attempts for an API request
-	DefaultMaxAttempts int = 6 // sdk=3
-
-	// DefaultMaxBackoff is the maximum back off delay between attempts
-	DefaultMaxBackoff = 20 * time.Second // sdk default
-
-	// retry token quota values.
-	DefaultRetryRateTokens  uint = 10_000 // sdk=500
-	DefaultRetryCost        uint = 5      // sdk default
-	DefaultRetryTimeoutCost uint = 10     // sdk default
-	DefaultNoRetryIncrement uint = 1      // sdk default
 )
 
 func InitGraphqlHandler(ctx context.Context, db *dynamodb.Client) gin.HandlerFunc {
@@ -47,11 +29,7 @@ func InitGraphqlHandler(ctx context.Context, db *dynamodb.Client) gin.HandlerFun
 }
 
 func InitDynamo(ctx context.Context) *dynamodb.Client {
-	retryer := config.WithRetryer(func() aws.Retryer {
-		return newRetryer()
-	})
-
-	cfg, err := config.LoadDefaultConfig(ctx, retryer)
+	cfg, err := config.LoadDefaultConfig(ctx)
 
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
@@ -70,18 +48,6 @@ func InitDynamo(ctx context.Context) *dynamodb.Client {
 	}
 
 	return db
-}
-
-func newRetryer() aws.Retryer {
-	return retry.NewStandard(func(options *retry.StandardOptions) {
-		options.MaxAttempts = DefaultMaxAttempts
-		options.MaxBackoff = DefaultMaxBackoff
-		options.Retryables = retry.DefaultRetryables
-		options.RateLimiter = ratelimit.NewTokenRateLimit(DefaultRetryRateTokens)
-		options.RetryCost = DefaultRetryCost
-		options.RetryTimeoutCost = DefaultRetryTimeoutCost
-		options.NoRetryIncrement = DefaultNoRetryIncrement
-	})
 }
 
 func ensureTable(db *dynamodb.Client, createTableInput *dynamodb.CreateTableInput) error {
