@@ -22,6 +22,7 @@ services:
       - .env
     environment:
       RUN_IN_DOCKER: "true"
+      AES_ENCRYPTION_SECRET: "abc&1*~#^2^#s0^=)^^7%b34"
       <<: *aws-config
     ports:
       - "8080:8080"

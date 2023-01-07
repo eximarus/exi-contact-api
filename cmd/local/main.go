@@ -34,4 +34,5 @@ func setupLocalEnv() {
 	os.Setenv("AWS_REGION", "eu-central-1")
 	os.Setenv("AWS_ACCESS_KEY_ID", "local")
 	os.Setenv("AWS_SECRET_ACCESS_KEY", "local")
+	os.Setenv("AES_ENCRYPTION_SECRET", "abc&1*~#^2^#s0^=)^^7%b34")
 }
